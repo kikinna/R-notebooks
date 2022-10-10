@@ -1,0 +1,145 @@
+---
+title: "Statni vyznamenani"
+output: html_document
+date: "2022-10-10"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries, include=FALSE}
+library("tidyr")
+library("dplyr")
+library("ggplot2")
+```
+
+## Data
+
+```{r}
+bily_lev <- read.csv(file = "../data/lions_e.csv")
+metaly <- read.csv(file = "../data/export.csv")
+
+head(metaly)
+```
+
+## Co máme v datech
+
+### Typy vyznamenání
+
+```{r}
+vyz_podle_typu <- metaly |> count(vyznamenani)
+```
+
+```{r, echo=FALSE}
+vyz_podle_typu
+```
+
+```{r, echo=FALSE}
+
+g_vyz_podle_typu <- 
+  ggplot(vyz_podle_typu, aes(x = reorder(vyznamenani, desc(vyznamenani)), y = n)) + 
+  geom_col(width = 0.7, fill = "#546A76") + coord_flip() +
+  geom_text(aes(label = n), hjust=1.2, color = "white") +
+  theme_minimal()
+
+g_vyz_podle_typu
+```
+
+### 1. Podle roku
+
+```{r}
+vyz_podle_roku <- metaly |> count(rok)
+```
+
+```{r, echo=FALSE}
+ggplot(vyz_podle_roku, aes(x = rok, y = n)) + 
+  geom_col(fill = "#546A76") +
+  geom_text(aes(label=n), vjust = -0.6) +
+  theme_minimal()
+```
+
+#### 1.1 Pohlaví
+
+```{r}
+vyz_rok_pohlavi <- metaly |> group_by(rok) |> count(pohlavi)
+```
+
+```{r, echo=FALSE}
+pohlavi.colors <- c("#546A76", "#F4364C")
+```
+
+```{r}
+ggplot(vyz_rok_pohlavi, aes(x = rok, y = n, fill = pohlavi)) + 
+  geom_col() +
+  scale_fill_manual(values = pohlavi.colors) +
+  theme_minimal()
+```
+
+```{r}
+ggplot(vyz_rok_pohlavi, aes(x = rok, y = n, fill = pohlavi)) + 
+  geom_col(position="fill") +
+  scale_fill_manual(values = pohlavi.colors) +
+  # geom_text(aes(label=n)) +
+  theme_minimal()
+```
+
+> *To do : pivotni to a spočítej podíl*
+
+```{r}
+metaly |> group_by(prezident) |> count(pohlavi)
+```
+
+------------------------------------------------------------------------
+
+## Podle prezidenta
+
+```{r}
+vyz_podle_prezidentu <- metaly |> group_by(prezident, vyznamenani, inmemoriam) |> count(pohlavi)
+```
+```{r}
+ggplot(vyz_podle_prezidentu, aes(x = prezident, y = n, fill = pohlavi) ) +
+  geom_col() +
+  scale_fill_manual(values = pohlavi.colors) +
+  coord_flip() +
+  theme_minimal()
+```
+```{r}
+ggplot(vyz_podle_prezidentu, aes(x = prezident, y = n, fill = pohlavi) ) +
+  geom_col(position = "fill") +
+  scale_fill_manual(values = pohlavi.colors) +
+  coord_flip() +
+  theme_minimal()
+```
+```{r}
+ggplot(vyz_podle_prezidentu, aes(x = prezident, y = n, fill = inmemoriam) ) +
+  geom_col(position = "fill") +
+  scale_fill_manual(values = pohlavi.colors) +
+  coord_flip() +
+  theme_minimal()
+```
+
+
+
+
+------------------------------------------------------------------------
+
+## R Markdown
+
+<!-- This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>. -->
+
+<!-- When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this: -->
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
